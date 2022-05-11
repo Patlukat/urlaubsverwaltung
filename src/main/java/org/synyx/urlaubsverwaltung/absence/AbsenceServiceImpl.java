@@ -3,6 +3,7 @@ package org.synyx.urlaubsverwaltung.absence;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.synyx.urlaubsverwaltung.application.application.Application;
 import org.synyx.urlaubsverwaltung.application.application.ApplicationService;
 import org.synyx.urlaubsverwaltung.application.application.ApplicationStatus;
@@ -33,6 +34,7 @@ import static org.synyx.urlaubsverwaltung.application.application.ApplicationSta
 import static org.synyx.urlaubsverwaltung.sicknote.sicknote.SickNoteStatus.ACTIVE;
 
 @Service
+@Transactional
 public class AbsenceServiceImpl implements AbsenceService {
 
     private static final List<ApplicationStatus> APPLICATION_STATUSES = List.of(ALLOWED, WAITING, TEMPORARY_ALLOWED, ALLOWED_CANCELLATION_REQUESTED);
@@ -57,11 +59,13 @@ public class AbsenceServiceImpl implements AbsenceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AbsencePeriod> getOpenAbsences(Person person, LocalDate start, LocalDate end) {
         return getOpenAbsences(List.of(person), start, end);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AbsencePeriod> getOpenAbsences(List<Person> persons, LocalDate start, LocalDate end) {
         final DateRange askedDateRange = new DateRange(start, end);
         final List<WorkingTime> workingTimeList = workingTimeService.getByPersons(persons);
@@ -126,7 +130,7 @@ public class AbsenceServiceImpl implements AbsenceService {
                                                                    List<WorkingTime> workingTimeList,
                                                                    FederalState systemDefaultFederalState) {
         return sickNotes.stream()
-            .map(sickNote ->  toAbsencePeriod(sickNote, askedDateRange, workingTimeList, systemDefaultFederalState))
+            .map(sickNote -> toAbsencePeriod(sickNote, askedDateRange, workingTimeList, systemDefaultFederalState))
             .collect(toList());
     }
 
@@ -212,12 +216,10 @@ public class AbsenceServiceImpl implements AbsenceService {
         if (DayLength.MORNING.equals(application.getDayLength())) {
             morning = new AbsencePeriod.RecordMorningVacation(person, applicationId, status, vacationTypeId, visibleToEveryone);
             noon = null;
-        }
-        else if (DayLength.NOON.equals(application.getDayLength())) {
+        } else if (DayLength.NOON.equals(application.getDayLength())) {
             morning = null;
             noon = new AbsencePeriod.RecordNoonVacation(person, applicationId, status, vacationTypeId, visibleToEveryone);
-        }
-        else {
+        } else {
             morning = new AbsencePeriod.RecordMorningVacation(person, applicationId, status, vacationTypeId, visibleToEveryone);
             noon = new AbsencePeriod.RecordNoonVacation(person, applicationId, status, vacationTypeId, visibleToEveryone);
         }
@@ -272,12 +274,10 @@ public class AbsenceServiceImpl implements AbsenceService {
         if (DayLength.MORNING.equals(sickNote.getDayLength())) {
             morning = new AbsencePeriod.RecordMorningSick(person, sickNoteId);
             noon = null;
-        }
-        else if (DayLength.NOON.equals(sickNote.getDayLength())) {
+        } else if (DayLength.NOON.equals(sickNote.getDayLength())) {
             morning = null;
             noon = new AbsencePeriod.RecordNoonSick(person, sickNoteId);
-        }
-        else {
+        } else {
             morning = new AbsencePeriod.RecordMorningSick(person, sickNoteId);
             noon = new AbsencePeriod.RecordNoonSick(person, sickNoteId);
         }

@@ -2,6 +2,7 @@ package org.synyx.urlaubsverwaltung.sicknote.sicknote;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.synyx.urlaubsverwaltung.person.Person;
 import org.synyx.urlaubsverwaltung.person.Role;
 import org.synyx.urlaubsverwaltung.settings.Settings;
@@ -22,6 +23,7 @@ import static org.synyx.urlaubsverwaltung.sicknote.sicknote.SickNoteStatus.ACTIV
  * Implementation for {@link SickNoteService}.
  */
 @Service
+@Transactional
 class SickNoteServiceImpl implements SickNoteService {
 
     private final SickNoteRepository sickNoteRepository;
@@ -41,21 +43,25 @@ class SickNoteServiceImpl implements SickNoteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<SickNote> getById(Integer id) {
         return sickNoteRepository.findById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getByPersonAndPeriod(Person person, LocalDate from, LocalDate to) {
         return sickNoteRepository.findByPersonAndPeriod(person, from, to);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getActiveByPeriodAndPersonHasRole(LocalDate from, LocalDate to, List<Role> roles) {
         return sickNoteRepository.findByPersonPermissionsIsInAndStatusInAndEndDateIsGreaterThanEqualAndStartDateIsLessThanEqual(roles, List.of(ACTIVE), from, to);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getSickNotesReachingEndOfSickPay() {
 
         final Settings settings = settingsService.getSettings();
@@ -69,6 +75,7 @@ class SickNoteServiceImpl implements SickNoteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getAllActiveByYear(int year) {
         final LocalDate firstDayOfYear = Year.of(year).atDay(1);
         final LocalDate lastDayOfYear = firstDayOfYear.with(lastDayOfYear());
@@ -76,33 +83,37 @@ class SickNoteServiceImpl implements SickNoteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getNumberOfPersonsWithMinimumOneSickNote(int year) {
         return sickNoteRepository.findNumberOfPersonsWithMinimumOneSickNote(year);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getForStatesSince(List<SickNoteStatus> sickNoteStatuses, LocalDate since) {
         return sickNoteRepository.findByStatusInAndEndDateGreaterThanEqual(sickNoteStatuses, since);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getForStatesAndPersonSince(List<SickNoteStatus> sickNoteStatuses, List<Person> persons, LocalDate since) {
         return sickNoteRepository.findByStatusInAndPersonInAndEndDateIsGreaterThanEqual(sickNoteStatuses, persons, since);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getForStatesAndPerson(List<SickNoteStatus> sickNoteStatus, List<Person> persons, LocalDate start, LocalDate end) {
         return sickNoteRepository.findByStatusInAndPersonInAndEndDateIsGreaterThanEqualAndStartDateIsLessThanEqual(sickNoteStatus, persons, start, end);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SickNote> getForStatesAndPersonAndPersonHasRoles(List<SickNoteStatus> sickNoteStatus, List<Person> persons, List<Role> roles, LocalDate start, LocalDate end) {
         return sickNoteRepository.findByStatusInAndPersonInAndPersonPermissionsInAndEndDateIsGreaterThanEqualAndStartDateIsLessThanEqual(sickNoteStatus, persons, roles, start, end);
     }
 
     @Override
     public void setEndOfSickPayNotificationSend(SickNote sickNote) {
-
         sickNote.setEndOfSickPayNotificationSend(LocalDate.now(clock));
         sickNoteRepository.save(sickNote);
     }

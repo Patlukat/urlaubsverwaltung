@@ -3,6 +3,7 @@ package org.synyx.urlaubsverwaltung.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.synyx.urlaubsverwaltung.overtime.OvertimeSettings;
@@ -25,6 +26,7 @@ import static org.synyx.urlaubsverwaltung.person.Role.SICK_NOTE_VIEW;
  * Interceptor to add menu specific information to all requests
  */
 @Component
+@Transactional(readOnly = true)
 public class MenuDataProvider implements HandlerInterceptor {
 
     private final PersonService personService;

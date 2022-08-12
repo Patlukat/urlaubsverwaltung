@@ -89,10 +89,16 @@ public class PersonsViewController {
                              @RequestHeader(name = "Turbo-Frame", required = false) String turboFrame,
                              Model model) throws UnknownDepartmentException {
 
+
+
         final int currentYear = Year.now(clock).getValue();
         final Integer selectedYear = requestedYear.orElse(currentYear);
 
         final Person signedInUser = personService.getSignedInUser();
+
+
+        departmentService.getDepartmentsPersonHasAccessTo(signedInUser);
+
 
         Sort personSort = Sort.unsorted();
         Sort accountSort = Sort.unsorted();

@@ -9,6 +9,7 @@ public class PersonNotificationsDto {
     private PersonNotificationDto applicationAppliedForManagement;
     private PersonNotificationDto applicationTemporaryAllowedForManagement;
     private PersonNotificationDto applicationAllowedForManagement;
+    private PersonNotificationDto notificationForColleagues;
     private PersonNotificationDto applicationCancellationForManagement;
     private PersonNotificationDto applicationAdaptedForManagement;
     private PersonNotificationDto applicationWaitingReminderForManagement;
@@ -62,6 +63,14 @@ public class PersonNotificationsDto {
 
     public void setApplicationAllowedForManagement(PersonNotificationDto applicationAllowedForManagement) {
         this.applicationAllowedForManagement = applicationAllowedForManagement;
+    }
+
+    public PersonNotificationDto getNotificationForColleagues() {
+        return notificationForColleagues;
+    }
+
+    public void setNotificationForColleagues(PersonNotificationDto notificationForColleagues) {
+        this.notificationForColleagues = notificationForColleagues;
     }
 
     public PersonNotificationDto getApplicationCancellationForManagement() {

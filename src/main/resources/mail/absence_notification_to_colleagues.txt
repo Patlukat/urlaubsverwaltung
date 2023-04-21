@@ -1,0 +1,9 @@
+[(#{greeting(${recipient.niceName})})],
+
+[(#{absence.notification.colleagues(${application.person.niceName})})]
+
+    [(${rightPadder.rightPad('__#{absence.information.period}__',__#{absence.information.max_length}__)})] [(${#temporals.format(application.startDate, "dd.MM.yyyy")})] [(#{until})] [(${#temporals.format(application.endDate, "dd.MM.yyyy")})], [(#{__${dayLength}__})]
+
+[(#{absence.overview.label})]: [(${baseLinkURL})]web/absences
+
+[(#{notification.settings.hint})]: [(${baseLinkURL})]web/person/[(${recipient.id})]/notifications

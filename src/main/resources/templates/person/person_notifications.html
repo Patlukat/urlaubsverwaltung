@@ -162,6 +162,9 @@
                   th:replace="~{::email-notification-element(visible=${personNotificationsDto.applicationAllowedForManagement.visible},active=${personNotificationsDto.applicationAllowedForManagement.active},name='applicationAllowedForManagement.active',label='person.notifications.section.absences.allowed.management.label',info='person.notifications.section.absences.allowed.management.info')}"
                 ></li>
                 <li
+                  th:replace="~{::email-notification-element(visible=${personNotificationsDto.notificationForColleagues.visible},active=${personNotificationsDto.notificationForColleagues.active},name='notificationForColleagues.active',label='person.notifications.colleagues.label',info='person.notifications.colleagues.info')}"
+                ></li>
+                <li
                   th:replace="~{::email-notification-element(visible=${personNotificationsDto.applicationCancellationForManagement.visible},active=${personNotificationsDto.applicationCancellationForManagement.active},name='applicationCancellationForManagement.active',label='person.notifications.section.absences.cancellation.management.label',info='person.notifications.section.absences.cancellation.management.info')}"
                 ></li>
                 <li

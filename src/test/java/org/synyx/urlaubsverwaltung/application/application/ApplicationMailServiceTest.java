@@ -54,6 +54,7 @@ import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_E
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_REJECTED;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_TEMPORARY_ALLOWED;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_UPCOMING;
+import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_COLLEAGUES;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationMailServiceTest {
@@ -79,7 +80,7 @@ class ApplicationMailServiceTest {
     }
 
     @Test
-    void ensureSendsAllowedNotificationToOffice() {
+    void ensureSendsAllowedNotificationToManagementAndColleague() {
 
         final Settings settings = new Settings();
         settings.setApplicationSettings(new ApplicationSettings());
@@ -110,6 +111,10 @@ class ApplicationMailServiceTest {
         when(mailRecipientService.getRecipientsOfInterest(application.getPerson(), NOTIFICATION_EMAIL_APPLICATION_MANAGEMENT_ALLOWED))
             .thenReturn(List.of(boss, office));
 
+        final Person colleague = new Person();
+        when(mailRecipientService.getRecipientsOfInterest(application.getPerson(), NOTIFICATION_EMAIL_COLLEAGUES))
+                .thenReturn(List.of(office, colleague));
+
         Map<String, Object> model = new HashMap<>();
         model.put("application", application);
         model.put("vacationTypeMessageKey", "application.data.vacationType.holiday");
@@ -119,7 +124,7 @@ class ApplicationMailServiceTest {
         sut.sendAllowedNotification(application, applicationComment);
 
         final ArgumentCaptor<Mail> argument = ArgumentCaptor.forClass(Mail.class);
-        verify(mailService, times(2)).send(argument.capture());
+        verify(mailService, times(3)).send(argument.capture());
         final List<Mail> mails = argument.getAllValues();
         assertThat(mails.get(0).getMailAddressRecipients()).hasValue(List.of(person));
         assertThat(mails.get(0).getSubjectMessageKey()).isEqualTo("subject.application.allowed.user");
@@ -133,6 +138,12 @@ class ApplicationMailServiceTest {
         assertThat(mails.get(1).getTemplateModel()).isEqualTo(model);
         assertThat(mails.get(1).getMailAttachments().get().get(0).getContent()).isEqualTo(attachment);
         assertThat(mails.get(1).getMailAttachments().get().get(0).getName()).isEqualTo("calendar.ics");
+        assertThat(mails.get(2).getMailAddressRecipients()).hasValue(List.of(colleague));
+        assertThat(mails.get(2).getSubjectMessageKey()).isEqualTo("subject.absence.notification.colleagues");
+        assertThat(mails.get(2).getTemplateName()).isEqualTo("absence_notification_to_colleagues");
+        assertThat(mails.get(2).getTemplateModel()).isEqualTo(model);
+        assertThat(mails.get(2).getMailAttachments().get().get(0).getContent()).isEqualTo(attachment);
+        assertThat(mails.get(2).getMailAttachments().get().get(0).getName()).isEqualTo("calendar.ics");
     }
 
     @Test

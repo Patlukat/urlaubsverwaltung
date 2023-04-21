@@ -50,6 +50,7 @@ import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_E
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_REVOKED;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_TEMPORARY_ALLOWED;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_UPCOMING;
+import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_COLLEAGUES;
 
 @Service
 class ApplicationMailService {
@@ -111,6 +112,18 @@ class ApplicationMailService {
             .withAttachment(CALENDAR_ICS, calendarFile)
             .build();
         mailService.send(mailToRelevantRecipients);
+
+        // Inform colleagues of applicant which are in same department but do not have already received any mail about this application
+        final List<Person> relevantColleaguesToInform = mailRecipientService.getRecipientsOfInterest(application.getPerson(), NOTIFICATION_EMAIL_COLLEAGUES);
+        relevantColleaguesToInform.removeAll(relevantRecipientsToInform);
+        final Mail mailToRelevantColleagues = Mail.builder()
+                .withRecipient(relevantColleaguesToInform)
+                .withSubject("subject.absence.notification.colleagues", application.getPerson().getNiceName())
+                .withTemplate("absence_notification_to_colleagues", model)
+                .withAttachment(CALENDAR_ICS, calendarFile)
+                .build();
+
+        mailService.send(mailToRelevantColleagues);
     }
 
     /**

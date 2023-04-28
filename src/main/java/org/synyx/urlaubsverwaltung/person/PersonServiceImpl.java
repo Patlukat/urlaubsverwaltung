@@ -16,10 +16,14 @@ import org.synyx.urlaubsverwaltung.search.PageableSearchQuery;
 import org.synyx.urlaubsverwaltung.workingtime.WorkingTimeWriteService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static java.lang.invoke.MethodHandles.lookup;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_ALLOWED;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_APPLIED;
@@ -32,9 +36,11 @@ import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_E
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_REVOKED;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_TEMPORARY_ALLOWED;
 import static org.synyx.urlaubsverwaltung.person.MailNotification.NOTIFICATION_EMAIL_APPLICATION_UPCOMING;
+import static org.synyx.urlaubsverwaltung.person.Role.ADMIN;
 import static org.synyx.urlaubsverwaltung.person.Role.INACTIVE;
 import static org.synyx.urlaubsverwaltung.person.Role.OFFICE;
 import static org.synyx.urlaubsverwaltung.person.Role.USER;
+import static org.synyx.urlaubsverwaltung.person.web.PersonPermissionsMapper.mapRoleToPermissionsDto;
 
 /**
  * Implementation for {@link PersonService}.
@@ -45,15 +51,17 @@ class PersonServiceImpl implements PersonService {
     private static final Logger LOG = getLogger(lookup().lookupClass());
 
     private final PersonRepository personRepository;
+    private final PersonMailService personMailService;
     private final AccountInteractionService accountInteractionService;
     private final WorkingTimeWriteService workingTimeWriteService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    PersonServiceImpl(PersonRepository personRepository, AccountInteractionService accountInteractionService,
+    PersonServiceImpl(PersonRepository personRepository, PersonMailService personMailService, AccountInteractionService accountInteractionService,
                       WorkingTimeWriteService workingTimeWriteService, ApplicationEventPublisher applicationEventPublisher) {
 
         this.personRepository = personRepository;
+        this.personMailService = personMailService;
         this.accountInteractionService = accountInteractionService;
         this.workingTimeWriteService = workingTimeWriteService;
         this.applicationEventPublisher = applicationEventPublisher;
@@ -117,6 +125,26 @@ class PersonServiceImpl implements PersonService {
         }
 
         applicationEventPublisher.publishEvent(toPersonUpdateEvent(updatedPerson));
+
+        return updatedPerson;
+    }
+
+    @Override
+    public Person updatePermissions(PersonId personId, List<Role> permissions) throws UnknownPersonException {
+
+        final Integer personIdValue = personId.getValue();
+        final Person person = personRepository.findById(personIdValue).orElseThrow(() -> new UnknownPersonException(personIdValue));
+
+        final Collection<Role> oldRoles = person.getPermissions();
+
+        person.setPermissions(permissions);
+
+        final Person updatedPerson = update(person);
+
+        final List<Role> addedPermissions = calculateAddedPermissions(oldRoles, updatedPerson);
+        if (!addedPermissions.isEmpty()) {
+            personMailService.sendPersonGainedMorePermissionsNotification(updatedPerson, mapRoleToPermissionsDto(addedPermissions));
+        }
 
         return updatedPerson;
     }
@@ -237,6 +265,17 @@ class PersonServiceImpl implements PersonService {
     @Override
     public int numberOfPersonsWithOfficeRoleExcludingPerson(int excludingId) {
         return personRepository.countByPermissionsContainingAndIdNotIn(OFFICE, List.of(excludingId));
+    }
+
+    private static List<Role> calculateAddedPermissions(Collection<Role> oldRoles, Person updatedPerson) {
+        return updatedPerson.getPermissions().stream()
+            .filter(not(oldRoles::contains))
+            .filter(role(INACTIVE).and(role(USER)).and(role(ADMIN)))
+            .collect(toList());
+    }
+
+    private static Predicate<Role> role(final Role role) {
+        return addedRole -> addedRole != role;
     }
 
     private static Sort mapToImplicitPersonSort(Sort requestedSort) {

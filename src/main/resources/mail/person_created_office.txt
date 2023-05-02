@@ -6,3 +6,6 @@
 
 [(#{person.overview})]
 [(${baseLinkURL})]web/person/[(${personId})]
+
+
+[(#{notification.description(|${baseLinkURL}web/person/${recipient.id}/notifications|)})]

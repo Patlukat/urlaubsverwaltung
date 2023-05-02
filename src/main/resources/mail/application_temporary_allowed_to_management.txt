@@ -22,3 +22,6 @@
 [(#{application.temporary_allowed.to_management.overlapping.title})]
 
     [# th:each="vacation : ${departmentVacations}"][(${vacation.person.niceName})]: [(#{application.temporary_allowed.to_management.overlapping.from_to(${#temporals.format(vacation.startDate, "dd.MM.yyyy")},${#temporals.format(vacation.endDate, "dd.MM.yyyy")})})][/][# th:if="${#lists.isEmpty(departmentVacations)}"][(#{application.temporary_allowed.to_management.overlapping.none})][/]
+
+
+[(#{notification.description(|${baseLinkURL}web/person/${recipient.id}/notifications|)})]

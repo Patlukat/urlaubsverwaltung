@@ -75,7 +75,7 @@ public class PersonNotificationsViewController implements HasLaunchpad {
 
     @GetMapping("/person/{personId}/notifications/departments")
     @PreAuthorize("hasAuthority('OFFICE') or @userApiMethodSecurity.isSamePersonId(authentication, #personId)")
-    public String showDepartmentNotifications(@PathVariable int personId, Model model) throws UnknownPersonException {
+    public String showDepartmentNotifications(@PathVariable long personId, Model model) throws UnknownPersonException {
         return showNotifications(true, personId, model);
     }
 
@@ -92,7 +92,7 @@ public class PersonNotificationsViewController implements HasLaunchpad {
 
         final boolean userIsAllowedToSubmitSickNotes = settingsService.getSettings().getSickNoteSettings().getUserIsAllowedToSubmitSickNotes();
         final PersonNotificationsDto personNotificationsDto = mapToPersonNotificationsDto(person, userIsAllowedToSubmitSickNotes);
-        personNotificationsDto.setRestrictToDepartments(new PersonNotificationDto(person.hasAnyRole(OFFICE, BOSS), notificationSettings.isRestrictToDepartments()));
+        personNotificationsDto.setRestrictToDepartments(new PersonNotificationDto(person.hasAnyRole(OFFICE, BOSS), notificationSettings.restrictToDepartments()));
 
         model.addAttribute("isViewingOwnNotifications", Objects.equals(person.getId(), signedInUser.getId()));
         model.addAttribute("personNiceName", person.getNiceName());
@@ -113,7 +113,7 @@ public class PersonNotificationsViewController implements HasLaunchpad {
 
     @PostMapping("/person/{personId}/notifications")
     @PreAuthorize("hasAuthority('OFFICE') or @userApiMethodSecurity.isSamePersonId(authentication, #personId)")
-    public String editSelfNotifications(@PathVariable int personId,
+    public String editSelfNotifications(@PathVariable long personId,
                                         @ModelAttribute PersonNotificationsDto newPersonNotificationsDto,
                                         Errors errors,
                                         Model model,

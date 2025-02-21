@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import static java.util.function.Function.identity;
 import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 @Service
@@ -31,18 +30,18 @@ class UserNotificationSettingsServiceImpl implements UserNotificationSettingsSer
     @Override
     public Map<PersonId, UserNotificationSettings> findNotificationSettings(Collection<PersonId> personIds) {
 
-        final List<Long> personIdValues = personIds.stream().map(PersonId::value).collect(toList());
+        final List<Long> personIdValues = personIds.stream().map(PersonId::value).toList();
 
         final Map<PersonId, UserNotificationSettings> notificationsByPerson = repository.findAllById(personIdValues).stream()
             .map(UserNotificationSettingsServiceImpl::toNotification)
-            .collect(toMap(UserNotificationSettings::getPersonId, identity(), (userNotificationSettings, userNotificationSettings2) -> userNotificationSettings));
+            .collect(toMap(UserNotificationSettings::personId, identity(), (userNotificationSettings, userNotificationSettings2) -> userNotificationSettings));
 
         final Stream<UserNotificationSettings> defaultNotificationSettings = personIds.stream()
             .filter(not(notificationsByPerson::containsKey))
             .map(UserNotificationSettingsServiceImpl::defaultNotificationSettings);
 
         return Stream.concat(notificationsByPerson.values().stream(), defaultNotificationSettings)
-            .collect(toMap(UserNotificationSettings::getPersonId, identity(), (userNotificationSettings, userNotificationSettings2) -> userNotificationSettings));
+            .collect(toMap(UserNotificationSettings::personId, identity(), (userNotificationSettings, userNotificationSettings2) -> userNotificationSettings));
     }
 
     @Override

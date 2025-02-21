@@ -5,22 +5,22 @@
 
   <groupId>org.synyx</groupId>
   <artifactId>urlaubsverwaltung</artifactId>
-  <version>5.12.0-SNAPSHOT</version>
+  <version>5.18.0-SNAPSHOT</version>
 
   <name>Urlaubsverwaltung</name>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version>
+    <version>3.4.3</version>
   </parent>
 
   <properties>
     <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <java.version>21</java.version>
-    <uv-extension-api.version>1.3.0</uv-extension-api.version>
-    <jollyday.version>1.3.0</jollyday.version>
+    <uv-extension-api.version>1.4.0</uv-extension-api.version>
+    <jollyday.version>1.5.0</jollyday.version>
 
     <!-- Remove commons-compress dependency when testcontainers ships with commons-compress >= 1.27.1, see
      https://github.com/testcontainers/testcontainers-java/issues/8338
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.8.1</version>
+      <version>2.8.5</version>
     </dependency>
 
     <!-- SESSION -->
@@ -135,14 +135,14 @@
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
-      <version>5.9</version>
+      <version>5.10</version>
     </dependency>
 
     <!-- Shedlock -->
     <dependency>
       <groupId>net.javacrumbs.shedlock</groupId>
       <artifactId>shedlock-provider-jdbc-template</artifactId>
-      <version>6.2.0</version>
+      <version>6.3.0</version>
     </dependency>
 
     <!-- MAIL -->
@@ -153,7 +153,7 @@
     <dependency>
       <groupId>com.icegreen</groupId>
       <artifactId>greenmail-junit5</artifactId>
-      <version>2.1.2</version>
+      <version>2.1.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -191,24 +191,24 @@
     <dependency>
       <groupId>org.mnode.ical4j</groupId>
       <artifactId>ical4j</artifactId>
-      <version>3.2.18</version>
+      <version>4.1.0</version>
     </dependency>
 
     <!-- GOOGLE CALENDAR SYNC -->
     <dependency>
       <groupId>com.google.api-client</groupId>
       <artifactId>google-api-client</artifactId>
-      <version>2.7.1</version>
+      <version>2.7.2</version>
     </dependency>
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-calendar</artifactId>
-      <version>v3-rev20241101-2.0.0</version>
+      <version>v3-rev20250115-2.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.http-client</groupId>
       <artifactId>google-http-client-jackson2</artifactId>
-      <version>1.45.3</version>
+      <version>1.46.1</version>
     </dependency>
 
     <!-- Security -->
@@ -232,7 +232,7 @@
     <dependency>
       <groupId>com.github.dasniko</groupId>
       <artifactId>testcontainers-keycloak</artifactId>
-      <version>3.5.1</version>
+      <version>3.6.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -289,7 +289,7 @@
     <dependency>
       <groupId>com.tngtech.archunit</groupId>
       <artifactId>archunit-junit5</artifactId>
-      <version>1.3.0</version>
+      <version>1.4.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -297,7 +297,7 @@
     <dependency>
       <groupId>com.microsoft.playwright</groupId>
       <artifactId>playwright</artifactId>
-      <version>1.49.0</version>
+      <version>1.50.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -341,8 +341,8 @@
         <artifactId>frontend-maven-plugin</artifactId>
         <version>1.15.1</version>
         <configuration>
-          <nodeVersion>v22.12.0</nodeVersion>
-          <npmVersion>10.9.0</npmVersion>
+          <nodeVersion>v22.13.1</nodeVersion>
+          <npmVersion>10.9.2</npmVersion>
         </configuration>
         <executions>
           <!-- Install node/npm binary to run npm/node scripts-->
@@ -439,6 +439,7 @@
             <exclude>mvnw.cmd</exclude>
             <exclude>src/main/resources/static/lib/**</exclude>
             <exclude>src/main/resources/static/fonts/**</exclude>
+            <exclude>src/test/resources/urlaubsverwaltung-backup.json</exclude>
             <exclude>.examples/docker-compose/with-keycloak/keycloak/import/**</exclude>
           </excludes>
         </configuration>

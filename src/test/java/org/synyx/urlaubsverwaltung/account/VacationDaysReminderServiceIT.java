@@ -18,16 +18,19 @@ import org.synyx.urlaubsverwaltung.person.PersonService;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Year;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import static com.icegreen.greenmail.util.ServerSetupTest.SMTP_IMAP;
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(properties = {"spring.mail.port=3025", "spring.mail.host=localhost"})
@@ -58,17 +61,20 @@ class VacationDaysReminderServiceIT extends SingleTenantTestContainersBase {
         when(personService.getActivePersons()).thenReturn(List.of(person));
 
         final Account account = new Account();
+        account.setPerson(person);
         account.setExpiryDateLocally(LocalDate.of(2022, 4, 1));
         account.setDoRemainingVacationDaysExpireLocally(true);
-        when(accountService.getHolidaysAccount(2022, person)).thenReturn(Optional.of(account));
-        when(vacationDaysService.calculateTotalLeftVacationDays(account)).thenReturn(TEN);
+        when(accountService.getHolidaysAccount(2022, List.of(person))).thenReturn(List.of(account));
+        when(vacationDaysService.getTotalLeftVacationDays(account)).thenReturn(TEN);
 
         sut.remindForCurrentlyLeftVacationDays();
 
+        await()
+            .atMost(Duration.ofSeconds(1))
+            .untilAsserted(() -> assertThat(greenMail.getReceivedMessagesForDomain(person.getEmail())).hasSize(1));
+
         // was email sent?
         final MimeMessage[] inbox = greenMail.getReceivedMessagesForDomain(person.getEmail());
-        assertThat(inbox.length).isOne();
-
         final Message msg = inbox[0];
         assertThat(msg.getSubject()).contains("Erinnerung an offenen Urlaubsanspruch");
         assertThat(new InternetAddress(person.getEmail())).isEqualTo(msg.getAllRecipients()[0]);
@@ -94,14 +100,16 @@ class VacationDaysReminderServiceIT extends SingleTenantTestContainersBase {
         when(personService.getActivePersons()).thenReturn(List.of(person));
 
         final Account account2022 = new Account();
+        account2022.setPerson(person);
         account2022.setExpiryDateLocally(LocalDate.of(2022, 4, 1));
         account2022.setDoRemainingVacationDaysExpireLocally(true);
-        when(accountService.getHolidaysAccount(2022, person)).thenReturn(Optional.of(account2022));
+        when(accountService.getHolidaysAccount(2022, List.of(person))).thenReturn(List.of(account2022));
 
         final Account account2023 = new Account();
+        account2023.setPerson(person);
         account2023.setExpiryDateLocally(LocalDate.of(2023, 4, 1));
         account2023.setDoRemainingVacationDaysExpireLocally(true);
-        when(accountService.getHolidaysAccount(2023, person)).thenReturn(Optional.of(account2023));
+        when(accountService.getHolidaysAccount(2023, List.of(person))).thenReturn(List.of(account2023));
 
         final VacationDaysLeft vacationDaysLeft = VacationDaysLeft.builder()
             .withAnnualVacation(ZERO)
@@ -110,14 +118,17 @@ class VacationDaysReminderServiceIT extends SingleTenantTestContainersBase {
             .forUsedVacationDaysBeforeExpiry(ZERO)
             .forUsedVacationDaysAfterExpiry(ZERO)
             .build();
-        when(vacationDaysService.getVacationDaysLeft(account2022, Optional.of(account2023))).thenReturn(vacationDaysLeft);
+        when(vacationDaysService.getVacationDaysLeft(List.of(account2022), Year.of(2022), List.of(account2023)))
+            .thenReturn(Map.of(account2022, new HolidayAccountVacationDays(account2022, vacationDaysLeft, vacationDaysLeft)));
 
         sut.remindForRemainingVacationDays();
 
+        await()
+            .atMost(Duration.ofSeconds(1))
+            .untilAsserted(() -> assertThat(greenMail.getReceivedMessagesForDomain(person.getEmail())).hasSize(1));
+
         // was email sent?
         final MimeMessage[] inbox = greenMail.getReceivedMessagesForDomain(person.getEmail());
-        assertThat(inbox.length).isOne();
-
         final Message msg = inbox[0];
         assertThat(msg.getSubject()).contains("Erinnerung an offenen Resturlaub");
         assertThat(new InternetAddress(person.getEmail())).isEqualTo(msg.getAllRecipients()[0]);
@@ -142,15 +153,17 @@ class VacationDaysReminderServiceIT extends SingleTenantTestContainersBase {
         person.setId(1L);
         when(personService.getActivePersons()).thenReturn(List.of(person));
 
-        final Account account2022 = new Account();
-        account2022.setExpiryDateLocally(LocalDate.of(2022, 4, 1));
-        account2022.setDoRemainingVacationDaysExpireLocally(true);
-        when(accountService.getHolidaysAccount(2022, person)).thenReturn(Optional.of(account2022));
+        final Account account = new Account();
+        account.setPerson(person);
+        account.setExpiryDateLocally(LocalDate.of(2022, 4, 1));
+        account.setDoRemainingVacationDaysExpireLocally(true);
+        when(accountService.getHolidaysAccount(2022, List.of(person))).thenReturn(List.of(account));
 
         final Account account2023 = new Account();
+        account2023.setPerson(person);
         account2023.setExpiryDateLocally(LocalDate.of(2023, 4, 1));
         account2023.setDoRemainingVacationDaysExpireLocally(true);
-        when(accountService.getHolidaysAccount(2023, person)).thenReturn(Optional.of(account2023));
+        when(accountService.getHolidaysAccount(2023, List.of(person))).thenReturn(List.of(account2023));
 
         final VacationDaysLeft vacationDaysLeft = VacationDaysLeft.builder()
             .withAnnualVacation(ZERO)
@@ -159,15 +172,17 @@ class VacationDaysReminderServiceIT extends SingleTenantTestContainersBase {
             .forUsedVacationDaysBeforeExpiry(ZERO)
             .forUsedVacationDaysAfterExpiry(ZERO)
             .build();
-        when(vacationDaysService.getVacationDaysLeft(account2022, Optional.of(account2023))).thenReturn(vacationDaysLeft);
-        when(vacationDaysService.calculateTotalLeftVacationDays(account2022)).thenReturn(TEN);
+        when(vacationDaysService.getVacationDaysLeft(List.of(account), Year.of(2022), List.of(account2023)))
+            .thenReturn(Map.of(account, new HolidayAccountVacationDays(account, vacationDaysLeft, vacationDaysLeft)));
+        when(vacationDaysService.getTotalLeftVacationDays(account)).thenReturn(TEN);
 
         sut.notifyForExpiredRemainingVacationDays();
 
-        // was email sent?
-        final MimeMessage[] inbox = greenMail.getReceivedMessagesForDomain(person.getEmail());
-        assertThat(inbox.length).isOne();
+        await()
+            .atMost(Duration.ofSeconds(1))
+            .untilAsserted(() -> assertThat(greenMail.getReceivedMessagesForDomain(person.getEmail())).hasSize(1));
 
+        final MimeMessage[] inbox = greenMail.getReceivedMessagesForDomain(person.getEmail());
         final Message msg = inbox[0];
         assertThat(msg.getSubject()).contains("Verfall des Resturlaubs");
         assertThat(new InternetAddress(person.getEmail())).isEqualTo(msg.getAllRecipients()[0]);

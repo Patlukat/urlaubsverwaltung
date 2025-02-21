@@ -42,10 +42,7 @@ import static org.synyx.urlaubsverwaltung.person.Role.INACTIVE;
 import static org.synyx.urlaubsverwaltung.person.Role.OFFICE;
 import static org.synyx.urlaubsverwaltung.person.Role.USER;
 
-/**
- * Implementation for {@link PersonService}.
- */
-@Service("personService")
+@Service
 class PersonServiceImpl implements PersonService {
 
     private static final Logger LOG = getLogger(lookup().lookupClass());
@@ -168,6 +165,16 @@ class PersonServiceImpl implements PersonService {
     @Override
     public List<Person> getActivePersons() {
         return personRepository.findByPermissionsNotContainingOrderByFirstNameAscLastNameAsc(INACTIVE);
+    }
+
+    @Override
+    public List<Person> getInactivePersons() {
+        return personRepository.findByPermissionsContainingOrderByFirstNameAscLastNameAsc(INACTIVE);
+    }
+
+    @Override
+    public List<Person> getAllPersons() {
+        return personRepository.findAllByOrderByIdAsc();
     }
 
     @Override

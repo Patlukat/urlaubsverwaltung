@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.synyx.urlaubsverwaltung.absence.DateRange;
 import org.synyx.urlaubsverwaltung.account.Account;
 import org.synyx.urlaubsverwaltung.account.AccountService;
+import org.synyx.urlaubsverwaltung.account.HolidayAccountVacationDays;
 import org.synyx.urlaubsverwaltung.account.VacationDaysLeft;
 import org.synyx.urlaubsverwaltung.account.VacationDaysService;
 import org.synyx.urlaubsverwaltung.application.comment.ApplicationComment;
@@ -48,7 +49,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNullElse;
 import static java.util.function.Predicate.isEqual;
 import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.synyx.urlaubsverwaltung.application.application.ApplicationForLeavePermissionEvaluator.isAllowedToAllowTemporaryAllowedApplication;
 import static org.synyx.urlaubsverwaltung.application.application.ApplicationForLeavePermissionEvaluator.isAllowedToAllowWaitingApplication;
@@ -419,22 +419,23 @@ class ApplicationForLeaveDetailsViewController implements HasLaunchpad {
         model.addAttribute("departmentApplications", departmentApplications);
 
         // HOLIDAY ACCOUNT
-        final Optional<Account> account = accountService.getHolidaysAccount(year, application.getPerson());
-        if (account.isPresent()) {
-            final Account acc = account.get();
-            final Optional<Account> accountNextYear = accountService.getHolidaysAccount(year + 1, application.getPerson());
+        final Optional<Account> maybeAccount = accountService.getHolidaysAccount(year, application.getPerson());
+        if (maybeAccount.isPresent()) {
+            final Account account = maybeAccount.get();
 
-            final VacationDaysLeft vacationDaysLeft = vacationDaysService.getVacationDaysLeft(acc, accountNextYear);
+            final List<Account> accountNextYear = accountService.getHolidaysAccount(year + 1, application.getPerson()).stream().toList();
+            final Map<Account, HolidayAccountVacationDays> accountHolidayAccountVacationDaysMap = vacationDaysService.getVacationDaysLeft(List.of(account), Year.of(year), accountNextYear);
+            final VacationDaysLeft vacationDaysLeft = accountHolidayAccountVacationDaysMap.get(account).vacationDaysYear();
             model.addAttribute("vacationDaysLeft", vacationDaysLeft);
 
             final LocalDate now = LocalDate.now(clock);
-            final LocalDate expiryDate = acc.getExpiryDate();
+            final LocalDate expiryDate = account.getExpiryDate();
             final BigDecimal expiredRemainingVacationDays = vacationDaysLeft.getExpiredRemainingVacationDays(now, expiryDate);
             model.addAttribute("expiredRemainingVacationDays", expiredRemainingVacationDays);
-            model.addAttribute("doRemainingVacationDaysExpire", acc.doRemainingVacationDaysExpire());
+            model.addAttribute("doRemainingVacationDaysExpire", account.doRemainingVacationDaysExpire());
             model.addAttribute("expiryDate", expiryDate);
 
-            model.addAttribute("account", acc);
+            model.addAttribute("account", account);
             model.addAttribute("isBeforeExpiryDate", now.isBefore(expiryDate));
         }
 
@@ -482,7 +483,7 @@ class ApplicationForLeaveDetailsViewController implements HasLaunchpad {
             .stream()
             .filter(not(isEqual(signedInUser)))
             .filter(person -> person.hasRole(BOSS) || person.hasRole(SECOND_STAGE_AUTHORITY) || (person.hasRole(DEPARTMENT_HEAD) && application.hasStatus(WAITING)))
-            .collect(toList());
+            .toList();
     }
 
     private ApplicationForLeaveDetailDto applicationForLeaveDetailDto(ApplicationForLeave applicationForLeave, Locale locale) {

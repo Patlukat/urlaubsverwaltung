@@ -8,10 +8,6 @@ zu behalten und falls doch mal eine Person ausfallen sollte, so kann die **Krank
 
 Wenn du mehr Informationen und Bilder über dieses Projekt sehen möchtest dann schaue auf unserer [Landingpage] vorbei.
 
-**Version 4.x**  
-Diese Readme bezieht sich auf die 5er-Version der Urlaubsverwaltung. Wenn du Informationen zu der 4er-Version erhalten
-möchtest, dann findest du diese [im v4.x Branch](https://github.com/urlaubsverwaltung/urlaubsverwaltung/tree/v4.x).
-
 * [Demo-System](#demo-system)
 * [FAQ](#faq)
 * [Berechtigungen](#berechtigungen)
@@ -20,31 +16,16 @@ möchtest, dann findest du diese [im v4.x Branch](https://github.com/urlaubsverw
 * [Demodaten Modus](#demodaten-modus)
 * [Entwicklung](#entwicklung)
 
-
 ## Demo-System
 
 Möchtest du die Urlaubsverwaltung **ohne** eine langwierige **Registrierung** ausprobieren?  
 Dann steige über unsere [Landingpage] direkt in das [Demo-System] ein.
 
-
 ## FAQ
 
-Für Fragen, die bei der Benutzung der Urlaubsverwaltung aufkommen, gibt es ein [Hilfe].  
+Für Fragen, die bei der Benutzung der Urlaubsverwaltung aufkommen, gibt es eine [Hilfe].  
 Sollte dieser Fragenkatalog nicht weiterhelfen, kannst du gerne
 [ein neue Q&A](https://github.com/urlaubsverwaltung/urlaubsverwaltung/discussions/new?category=q-a) erstellen.
-
-
-## 🎉 Version 5.x 
-
-Die Version 5.0.0 der Urlaubsverwaltung ist verfügbar!
-
-Wir haben größere Anpassungen an der Datenbank und den Security-Providern vorgenommen, sowie die Weichen für die weitere Entwicklung der 
-Urlaubsverwaltung stellen. Daher gibt es für den ein oder anderen nicht nur gute Nachrichten.
-
-* Keine Unterstützung für MariaDB und MySQL. Wir wechseln komplett auf [PostgreSQL]. Einen Migrationspfad ist bereits im [Migration-Guide-v5] vorhanden.
-* Wir haben die security provider LDAP und Active Directory entfernt und unterstützen dafür OIDC noch stärker.
-
-Alle Informationen zum Migrieren von 4.72.1 auf 5.0.0 findet ihr im [Migration-Guide-v5]
 
 ## Berechtigungen
 
@@ -60,33 +41,33 @@ beantragen/stornieren und Krankmeldungen pflegen
 
 Eine aktive Person kann eine oder mehrere Rollen innehaben.
   
----
-  
 ## Betrieb
+
+Wir bieten auf GitHub für das Open-Source-Projekt [urlaubsverwaltung](https://github.com/urlaubsverwaltung/urlaubsverwaltung) **keinen Support für den Betrieb** an.
+Für den Austausch mit anderen Personen steht jedoch der **Discussions-Bereich** unter
+[Operations](https://github.com/urlaubsverwaltung/urlaubsverwaltung/discussions/categories/operation) zur Verfügung.
+Dort können Erfahrungen geteilt und Fragen diskutiert werden.
+
+Falls ein **bezahlter Support** für die On-Premise-Installation oder den Betrieb gewünscht wird,
+kann man sich unter [urlaubsverwaltung.cloud/preis](https://urlaubsverwaltung.cloud/preis/) über die verfügbaren Support-Optionen informieren.
 
 ### Voraussetzungen
 
 * [JDK 21](https://adoptium.net)
 * [PostgreSQL Datenbank (v15.3)](https://www.postgresql.org/)
+* [E-Mail-Server](#e-mail-server-konfigurieren)
 * [Security Provider](#security-provider-konfigurieren)
 
-### Download
-
-Die Anwendung steht als
-* [Java Archive (.jar)](https://github.com/urlaubsverwaltung/urlaubsverwaltung/releases/latest)
-* [Docker Image](https://hub.docker.com/r/urlaubsverwaltung/urlaubsverwaltung)
-
-zur Verfügung.
-
-
 #### Installation .jar Variante
+
+Die Urlaubsverwaltung steht in den [Releases](https://github.com/urlaubsverwaltung/urlaubsverwaltung/releases/latest) zur Verfügung.
 
 * [Konfiguration Datenbank](#datenbank-konfigurieren)
 * [Konfiguration Security Provider](#security-provider-konfigurieren)
 * Lege ein Verzeichnis für die Urlaubsverwaltung an (z.B. `/opt/urlaubsverwaltung`). Kopiere die .jar-Datei dorthin.
 * Erstelle in dem Verzeichnis eine Konfigurationsdatei namens `application.yaml`, welche die Konfiguration für
-die Urlaubsverwaltung enthält und die Standardwerte überschreibt.
- Die vollständigen Konfigurationsoptionen sind unter [Konfiguration](#konfiguration) dokumentiert.
+  die Urlaubsverwaltung enthält und die Standardwerte überschreibt.
+  Die vollständigen Konfigurationsoptionen sind unter [Konfiguration](#konfiguration) dokumentiert.
   
 Nach der [Konfiguration](#konfiguration) lässt sich die Urlaubsverwaltung starten.
 
@@ -97,11 +78,9 @@ java -jar urlaubsverwaltung.jar
 Falls es Probleme beim Starten der Anwendung gibt, ist es hilfreich das [Logging der Anwendung](#logging-konfigurieren)
 zu konfigurieren, damit erhält man mehr Informationen über den Fehlerzustand.
 
-
 #### Docker Variante
 
-Alle Informationen zum Betrieb mit unserem Docker Image sind im Ordner [.example](.examples) zu finden.
-
+Alle Informationen zum Betrieb mit unserem [Docker Image](https://hub.docker.com/r/urlaubsverwaltung/urlaubsverwaltung) sind im Ordner [.example](.examples) zu finden.
 
 ### Konfiguration
 
@@ -214,11 +193,6 @@ spring:
 Alle weiteren `spring.mail.*` Konfigurationen können in der [Spring Dokumentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#io.email)
 eingesehen werden.
 
-#### Benutzer-Synchronisation konfigurieren
-
-Personen werden nicht mehr automatisch in die Urlaubsverwaltung synchronisiert,
-sondern nur noch beim Login der jeweiligen Person in der Urlaubsverwaltung angelegt.
-
 #### Logging konfigurieren
 
 Sollten beim Starten der Anwendung Probleme auftreten, lässt sich in der Konfigurationsdatei eine
@@ -300,8 +274,6 @@ funktioniert, kann den entsprechenden Kapiteln der Spring Boot Dokumentation ent
 * [Windows Service](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#deployment-windows)
 
 
----
-  
 ## Demodaten-Modus
 
 ### Starten der Anwendung im Demodaten-Modus
@@ -319,7 +291,7 @@ und die Anwendung mit dem Profil `demodata` zu starten:
 java -jar -Dspring.profiles.active=demodata urlaubsverwaltung.jar
 ```
 
-Auf diese Weise wird die Anwendung mit einer PostgreSQL-Datenbankmanagementsystem gestartet und Demodaten generiert.
+Auf diese Weise wird die Anwendung mit einem PostgreSQL-Datenbankmanagementsystem gestartet und Demodaten generiert.
 
 Die Demodaten enthalten folgende **Benutzer**, ein Passwort wird nicht benötigt:
 
@@ -339,7 +311,6 @@ Möchte man, dass beim Starten der Anwendung keine Demodaten generiert werden, m
 in den [application-demodata.yaml](https://github.com/urlaubsverwaltung/urlaubsverwaltung/blob/main/src/main/resources/application-demodata.yaml)
 auf `false` gesetzt werden.
 
-
 ### Aufrufen der Anwendung
 
 Folgende Systeme sind erreichbar unter `localhost`
@@ -349,9 +320,8 @@ Folgende Systeme sind erreichbar unter `localhost`
 | [Urlaubsverwaltung](http://localhost:8080) | 8080 |
 | [Mailhog](http://localhost:8025)           | 8025 |
 | Mailhog SMTP                               | 1025 |
-  
----
-  
+
+
 ## Entwicklung
 
 Wenn du uns bei der **Entwicklung** der Urlaubsverwaltung **unterstützen** möchtest,
@@ -364,8 +334,7 @@ Abschnitte an. Bei Fragen kannst du gerne [ein neue Q&A](https://github.com/urla
 * [Docker 20.10.+](https://docs.docker.com/get-docker/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
 
-
-### Repository clonen
+### Repository
 
 Ohne GitHub Account
 
@@ -431,7 +400,7 @@ Der Frontend Build ist in Maven integriert. Isoliert können die Assets aber auc
 
 * `npm run build`
   * baut optimierte, minifizierte Assets
-  * Info: der Dateiname beinhaltet einen Hash welcher eindeutig zum Inhalt des Assets passt 
+  * Information: der Dateiname beinhaltet einen Hash welcher eindeutig zum Inhalt des Assets passt 
 * `npm run build:dev`
   * baut nicht minifizierte Assets
 * `npm run build:watch`
@@ -441,7 +410,7 @@ Der Frontend Build ist in Maven integriert. Isoliert können die Assets aber auc
 
 Startet man den Maven Build oder baut man die Assets mit dem NPM Task `npm run build` wird eine JSON Datei `assets-manifest.json` angelegt.
 Das Manifest beschreibt ein Mapping der bundles zum generierten Dateinamen inklusive Hash. Dieser gemappte Dateiname muss
-in den Html-Seiten integriert werden. Damit das nicht bei jeder Änderung manuell gemacht werden muss, kann der Dateiname mit Hilfe der
+in den Html-Seiten integriert werden. Damit das nicht bei jeder Änderung manuell gemacht werden muss, kann der Dateiname mithilfe der
 Taglib `AssetsHashResolverTag.java` zur Kompilierungszeit automatisiert werden.
 
 ```html
@@ -461,9 +430,9 @@ spring:
         strategy:
           content:
             enabled: 'false'
-        cache:
-          cachecontrol:
-            max-age: '0'
+      cache:
+        cachecontrol:
+        max-age: '0'
 ```
 
 #### Icons
@@ -488,12 +457,8 @@ Details siehe [Playwright for Java Getting Started](https://playwright.dev/java/
 #### Headless Browser
 
 Die Tests laufen standardmäßig ohne sichtbaren Browser (headless).
-Das kann im [PageParameterResolver](src/test/java/org/synyx/urlaubsverwaltung/ui/extension/PageParameterResolver.java)
-mit `BrowserType.LaunchOptions` entsprechend konfiguriert werden.  
-
-```java
-final Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
-```
+Das kann in der [UiTest](src/test/java/org/synyx/urlaubsverwaltung/ui/extension/UiTest.java) Annotation
+mit `Options#setHeadless` entsprechend konfiguriert werden.
 
 #### Debugging
 
@@ -518,7 +483,7 @@ Hierzu das `zip` entweder auf https://trace.playwright.dev hochladen oder die lo
 bei sich selbst starten mit z. B. maven:
 
 ```bash
-./mvnw exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.classpathScope="test" -D exec.args="show-trace target/FAILED-test.zip"
+./mvnw exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.classpathScope="test" -D exec.args="show-trace target/ui-test/<browser>/FAILED-test.zip"
 ```
 
 ### Release

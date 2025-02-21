@@ -33,7 +33,7 @@ public interface OvertimeService {
      * @param author   identifies the person that recorded the overtime
      * @return the created overtime record
      */
-    Overtime record(Overtime overtime, Optional<String> comment, Person author);
+    Overtime save(Overtime overtime, Optional<String> comment, Person author);
 
 
     /**
@@ -109,4 +109,12 @@ public interface OvertimeService {
      * @return {@code true} if signedInUser is allowed to write otherwise {@code false}
      */
     boolean isUserIsAllowedToWriteOvertime(Person signedInUser, Person personOfOvertime);
+
+    /**
+     * Get all overtime hours of the given person.
+     *
+     * @param personId id of the given person
+     * @return all overtime hours of the given person
+     */
+    List<Overtime> getAllOvertimesByPersonId(Long personId);
 }

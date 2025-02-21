@@ -87,6 +87,20 @@ public interface PersonService {
     List<Person> getActivePersons();
 
     /**
+     * returns all inactive persons ordered by first name.
+     *
+     * @return returns all active persons
+     */
+    List<Person> getInactivePersons();
+
+    /**
+     * returns all persons ordered by id.
+     *
+     * @return returns all persons
+     */
+    List<Person> getAllPersons();
+
+    /**
      * Find all active persons matching the given query.
      *
      * @param personPageableSearchQuery search query containing pageable and an optional query for firstname/lastname

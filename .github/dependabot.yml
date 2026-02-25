@@ -18,11 +18,14 @@ updates:
         patterns:
           - "@babel/*"
           - "babel-*"
+        exclude-patterns:
+          - "@babel/eslint-parser"
       eslint:
         patterns:
           - "eslint"
           - "eslint-*"
           - "@eslint/*"
+          - "@babel/eslint-parser"
       jest:
         patterns:
           - "jest"
